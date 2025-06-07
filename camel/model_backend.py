@@ -64,7 +64,8 @@ class OpenAIModel(ModelBackend):
         self.model_config_dict = model_config_dict
 
     def run(self, *args, **kwargs):
-        string = "\n".join([message["content"] for message in kwargs["messages"]])
+        string = "\n".join([message["content"]
+                           for message in kwargs["messages"]])
         encoding = tiktoken.encoding_for_model(self.model_type.value)
         num_prompt_tokens = len(encoding.encode(string))
         gap_between_send_receive = 15 * len(kwargs["messages"])
@@ -91,12 +92,20 @@ class OpenAIModel(ModelBackend):
                 "gpt-4-0613": 8192,
                 "gpt-4-32k": 32768,
                 "gpt-4-turbo": 100000,
-                "gpt-4o": 4096, #100000
-                "gpt-4o-mini": 16384, #100000
+                "gpt-4o": 4096,  # 100000
+                "gpt-4o-mini": 16384,  # 100000
             }
             num_max_token = num_max_token_map[self.model_type.value]
             num_max_completion_tokens = num_max_token - num_prompt_tokens
             self.model_config_dict['max_tokens'] = num_max_completion_tokens
+
+            print("++++++++++++++++++++++++")
+            print(self.model_type.value)
+            print(num_prompt_tokens)
+            print(self.model_config_dict['max_tokens'])
+            print(args)
+            print(kwargs)
+            print("++++++++++++++++++++++++")
 
             response = client.chat.completions.create(*args, **kwargs, model=self.model_type.value,
                                                       **self.model_config_dict)
@@ -124,8 +133,8 @@ class OpenAIModel(ModelBackend):
                 "gpt-4-0613": 8192,
                 "gpt-4-32k": 32768,
                 "gpt-4-turbo": 100000,
-                "gpt-4o": 4096, #100000
-                "gpt-4o-mini": 16384, #100000
+                "gpt-4o": 4096,  # 100000
+                "gpt-4o-mini": 16384,  # 100000
             }
             num_max_token = num_max_token_map[self.model_type.value]
             num_max_completion_tokens = num_max_token - num_prompt_tokens

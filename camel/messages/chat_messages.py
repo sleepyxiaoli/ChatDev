@@ -40,6 +40,7 @@ class ChatMessage(BaseMessage):
         content (str): The content of the message. (default: :obj:`""`)
         refusal (str): The refusal to build argument.
         audio (object): The audio contains data about the audio response from the model.
+        annotations (Optional[Dict]): Additional annotations for the message. (default: :obj:`None`)
     """
     role_name: str
     role_type: RoleType
@@ -48,6 +49,7 @@ class ChatMessage(BaseMessage):
     content: str = ""
     refusal: str = None
     audio: object = None
+    annotations: Optional[Dict] = None  # <-- 新增的 annotations 参数
     if openai_new_api:
         function_call: Optional[FunctionCall] = None
         tool_calls: Optional[ChatCompletionMessageToolCall] = None
@@ -60,6 +62,7 @@ class ChatMessage(BaseMessage):
             role="user",
             content=self.content,
             refusal=self.refusal,
+            annotations=self.annotations,  # <-- 确保在构造新对象时也传递 annotations
         )
 
 
