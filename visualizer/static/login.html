@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能化软件工程管理平台 - 登录</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',
+            secondary: '#8B5CF6',
+            accent: '#EC4899',
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .bg-gradient-primary {
+        background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 100%);
+      }
+      .bg-gradient-secondary {
+        background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .transition-all-300 {
+        transition: all 0.3s ease;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+    <!-- 左侧登录表单 -->
+    <div class="w-full md:w-1/2 p-8 md:p-12">
+      <div class="mb-8">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-2">智能化软件工程管理平台</h2>
+        <p class="text-gray-500">Welcome Back, Please login to your account</p>
+      </div>
+
+      <form id="loginForm" class="space-y-6">
+        <div class="space-y-2">
+          <label for="username" class="block text-sm font-medium text-gray-700">用户名</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa fa-user"></i>
+            </span>
+            <input type="text" id="username" name="username"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300"
+              placeholder="请输入用户名">
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label for="password" class="block text-sm font-medium text-gray-700">密码</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa fa-lock"></i>
+            </span>
+            <input type="password" id="password" name="password"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300"
+              placeholder="请输入密码">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input id="remember-me" name="remember-me" type="checkbox"
+              class="h-4 w-4 text-primary focus:ring-primary/50 border-gray-300 rounded">
+            <label for="remember-me" class="ml-2 block text-sm text-gray-700">记住我</label>
+          </div>
+          <a href="#" class="text-sm font-medium text-primary hover:text-primary/80 transition-all-300">忘记密码?</a>
+        </div>
+
+        <button type="submit" id="loginBtn"
+          class="w-full bg-gradient-primary text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5 transition-all-300 flex items-center justify-center">
+          <span>登录</span>
+          <i class="fa fa-arrow-right ml-2"></i>
+        </button>
+
+        <div class="flex items-center justify-center">
+          <span class="text-gray-500">还没有账号?</span>
+          <a href="/register" class="ml-2 text-primary font-medium hover:text-primary/80 transition-all-300">立即注册</a>
+        </div>
+      </form>
+
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="flex justify-center space-x-4">
+          <a href="#" class="text-gray-400 hover:text-gray-600 transition-all-300">
+            <i class="fa fa-github text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-gray-600 transition-all-300">
+            <i class="fa fa-google text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-gray-600 transition-all-300">
+            <i class="fa fa-twitter text-xl"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-8 text-center">
+        <a href="#" class="text-gray-400 hover:text-gray-600 transition-all-300 text-sm">后台管理</a>
+      </div>
+    </div>
+
+    <!-- 右侧动画区域 -->
+    <div
+      class="w-full md:w-1/2 bg-gradient-secondary p-8 md:p-12 flex items-center justify-center relative overflow-hidden">
+      <div class="absolute inset-0 bg-[url('https://picsum.photos/id/180/800/800')] bg-cover bg-center opacity-10">
+      </div>
+
+      <div class="relative z-10 text-white text-center">
+        <div
+          class="w-32 h-32 mx-auto bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mb-6 animate-pulse">
+          <i class="fa fa-code-fork text-5xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-3 text-shadow">智能化开发平台</h3>
+        <p class="text-white/80 max-w-md">通过AI技术加速软件开发流程，提升团队协作效率</p>
+
+        <!-- 状态指示器 -->
+        <div class="mt-8 flex items-center justify-center">
+          <div id="connectionStatus" class="flex items-center text-white/80 text-sm">
+            <i class="fa fa-circle-o mr-2"></i>
+            <span>未连接</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 装饰元素 -->
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full backdrop-blur-sm"></div>
+      <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-white/5 rounded-full backdrop-blur-sm"></div>
+    </div>
+  </div>
+
+  <!-- 通知提示框 -->
+  <div id="notification"
+    class="fixed top-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50">
+    <div class="flex items-start">
+      <div id="notificationIcon" class="flex-shrink-0 mt-0.5">
+        <i class="fa fa-info-circle text-blue-500"></i>
+      </div>
+      <div class="ml-3">
+        <h3 id="notificationTitle" class="text-sm font-medium text-gray-800"></h3>
+        <div id="notificationMessage" class="mt-1 text-sm text-gray-600"></div>
+      </div>
+      <button id="closeNotification" class="ml-auto flex-shrink-0 text-gray-400 hover:text-gray-600">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+</body>
+<script>
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault(); // 阻止默认表单提交行为
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      // 登录成功
+      showNotification("success", "登录成功", result.message);
+      // 可跳转到首页或仪表盘
+      setTimeout(() => {
+        window.location.href = "/chatdev"; // 你可改为任意其他页面
+      }, 1500);
+    } else {
+      // 登录失败
+      showNotification("error", "登录失败", result.message);
+    }
+  });
+
+  document.getElementById("closeNotification").addEventListener("click", () => {
+    hideNotification();
+  });
+  document.getElementById("signupBtn").addEventListener("click", function () {
+    window.location.href = "/register";
+  });
+  function showNotification(type, title, message) {
+    const notification = document.getElementById("notification");
+    const icon = document.getElementById("notificationIcon");
+    const titleEl = document.getElementById("notificationTitle");
+    const messageEl = document.getElementById("notificationMessage");
+
+    // 设置图标颜色和内容
+    if (type === "success") {
+      icon.innerHTML = '<i class="fa fa-check-circle text-green-500"></i>';
+    } else if (type === "error") {
+      icon.innerHTML = '<i class="fa fa-exclamation-circle text-red-500"></i>';
+    } else {
+      icon.innerHTML = '<i class="fa fa-info-circle text-blue-500"></i>';
+    }
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    notification.classList.remove("translate-x-full");
+  }
+
+  function hideNotification() {
+    document.getElementById("notification").classList.add("translate-x-full");
+  }
+</script>
+
+</html>
