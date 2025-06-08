@@ -8,7 +8,7 @@ from flask import Flask, send_from_directory, request, jsonify
 import argparse
 import socket
 # Added database functions
-from visualizer.database_mine import init_db, register_user, validate_login
+from .database_mine import init_db, register_user, validate_login
 
 os.environ['OPENAI_API_KEY'] = "sk-UfintTNkIFLGE3vkB6E6346bBfFa45E59f211b22CcB6DdC0"
 os.environ['OPENAI_BASE_URL'] = "https://api.laozhang.ai/v1"

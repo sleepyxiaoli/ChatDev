@@ -20,6 +20,32 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         
+        /* 打字机效果 */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: #3b82f6;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* 头像样式 */
+        .avatar-emoji {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
         /* Markdown样式 */
         .markdown-content {
             font-size: 14px;
@@ -129,7 +155,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
 
         // 图标组件
         const Send = () => (
@@ -212,8 +238,65 @@
             </svg>
         );
 
-        // Markdown渲染组件
-        const MarkdownMessage = ({ content }) => {
+        // 头像组件 - 使用emoji
+        const RoleAvatar = ({ role }) => {
+            // 角色到emoji的映射
+            const roleToEmoji = {
+                'CEO': '👑',
+                'Chief Executive Officer': '👑',
+                'CTO': '💻', 
+                'Chief Technology Officer': '💻',
+                'Programmer': '👨‍💻',
+                'Code Reviewer': '🔍',
+                'Tester': '🧪',
+                'Software Test Engineer': '🧪',
+                'Chief Human Resource Officer': '👥',
+                'Counselor': '🧠',
+                'Chief Creative Officer': '🎨',
+                'Chief Product Officer': '📦',
+                'System': '🤖',
+                'User': '👤',
+                'Prompt Engineer': '⚡',
+                'Default': '👤'
+            };
+
+            // 角色颜色配置
+            const roleColors = {
+                'CEO': 'from-purple-500 to-purple-600',
+                'Chief Executive Officer': 'from-purple-500 to-purple-600',
+                'CTO': 'from-blue-500 to-blue-600',
+                'Chief Technology Officer': 'from-blue-500 to-blue-600',
+                'Programmer': 'from-green-500 to-green-600',
+                'Code Reviewer': 'from-orange-500 to-orange-600',
+                'Tester': 'from-red-500 to-red-600',
+                'Software Test Engineer': 'from-red-500 to-red-600',
+                'Chief Human Resource Officer': 'from-pink-500 to-pink-600',
+                'Counselor': 'from-indigo-500 to-indigo-600',
+                'Chief Creative Officer': 'from-yellow-500 to-yellow-600',
+                'Chief Product Officer': 'from-cyan-500 to-cyan-600',
+                'System': 'from-gray-600 to-gray-700',
+                'User': 'from-slate-500 to-slate-600',
+                'Prompt Engineer': 'from-emerald-500 to-emerald-600',
+                'Default': 'from-gray-500 to-gray-600'
+            };
+
+            const getEmoji = (role) => {
+                return roleToEmoji[role] || roleToEmoji['Default'];
+            };
+
+            const getGradient = (role) => {
+                return roleColors[role] || roleColors['Default'];
+            };
+
+            return (
+                <div className={`avatar-emoji bg-gradient-to-br ${getGradient(role)}`}>
+                    {getEmoji(role)}
+                </div>
+            );
+        };
+
+        // 流式消息组件
+        const StreamingMessage = ({ content, isStreaming = false }) => {
             const [copied, setCopied] = useState(false);
 
             // 配置marked选项
@@ -222,7 +305,6 @@
                 gfm: true,
                 sanitizer: DOMPurify.sanitize,
                 highlight: function(code, lang) {
-                    // 简单的代码高亮处理
                     return code;
                 }
             };
@@ -235,7 +317,6 @@
                     return { __html: cleanHtml };
                 } catch (error) {
                     console.error('Markdown parsing error:', error);
-                    // 如果解析失败，返回纯文本
                     return { __html: DOMPurify.sanitize(text.replace(/\n/g, '<br>')) };
                 }
             };
@@ -266,7 +347,7 @@
                         )}
                     </button>
                     <div 
-                        className="markdown-content"
+                        className={`markdown-content ${isStreaming ? 'typing-cursor' : ''}`}
                         dangerouslySetInnerHTML={renderMarkdown(content)}
                     />
                 </div>
@@ -279,15 +360,19 @@
             const [newMessage, setNewMessage] = useState('');
             const [isLoading, setIsLoading] = useState(false);
             
-            // 新增：任务相关状态
+            // 任务相关状态
             const [taskDescription, setTaskDescription] = useState('');
             const [projectName, setProjectName] = useState('');
             const [taskStatus, setTaskStatus] = useState({ running: false, current_task: null, progress: '' });
             const [isSubmittingTask, setIsSubmittingTask] = useState(false);
             
-            // 新增：滚动控制相关状态
+            // 滚动控制相关状态
             const [autoScroll, setAutoScroll] = useState(true);
             const [prevMessageCount, setPrevMessageCount] = useState(0);
+            
+            // 流式输出相关状态
+            const [streamingMessages, setStreamingMessages] = useState(new Map());
+            const [eventSource, setEventSource] = useState(null);
             
             const messagesEndRef = useRef(null);
             const messagesContainerRef = useRef(null);
@@ -302,29 +387,122 @@
             const handleScroll = () => {
                 if (messagesContainerRef.current) {
                     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-                    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px容差
-                    
-                    // 如果用户滚动到底部，启用自动滚动；否则禁用
+                    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
                     setAutoScroll(isAtBottom);
                 }
             };
 
-            // 只在有新消息且启用自动滚动时才滚动
+            // 初始化SSE连接
+            const initializeSSE = useCallback(() => {
+                if (eventSource) {
+                    eventSource.close();
+                }
+
+                const newEventSource = new EventSource('/stream');
+                
+                newEventSource.onopen = () => {
+                    console.log('SSE连接已建立');
+                };
+
+                newEventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'message_start') {
+                            // 开始新消息
+                            setStreamingMessages(prev => new Map(prev.set(data.message_id, {
+                                id: data.message_id,
+                                role: data.role,
+                                content: '',
+                                isComplete: false,
+                                timestamp: Date.now()
+                            })));
+                        } else if (data.type === 'message_chunk') {
+                            // 追加消息内容
+                            setStreamingMessages(prev => {
+                                const newMap = new Map(prev);
+                                const message = newMap.get(data.message_id);
+                                if (message) {
+                                    newMap.set(data.message_id, {
+                                        ...message,
+                                        content: message.content + data.content
+                                    });
+                                }
+                                return newMap;
+                            });
+                        } else if (data.type === 'message_complete') {
+                            // 消息完成
+                            setStreamingMessages(prev => {
+                                const newMap = new Map(prev);
+                                const message = newMap.get(data.message_id);
+                                if (message) {
+                                    newMap.set(data.message_id, {
+                                        ...message,
+                                        isComplete: true
+                                    });
+                                    
+                                    // 3秒后将完成的消息移动到正式消息列表
+                                    setTimeout(() => {
+                                        setMessages(currentMessages => [...currentMessages, {
+                                            role: message.role,
+                                            text: message.content
+                                        }]);
+                                        setStreamingMessages(currentStreaming => {
+                                            const newMap = new Map(currentStreaming);
+                                            newMap.delete(data.message_id);
+                                            return newMap;
+                                        });
+                                    }, 3000);
+                                }
+                                return newMap;
+                            });
+                        } else if (data.type === 'task_status') {
+                            // 更新任务状态
+                            setTaskStatus(data.status);
+                        }
+                    } catch (error) {
+                        console.error('解析SSE数据失败:', error);
+                    }
+                };
+
+                newEventSource.onerror = (error) => {
+                    console.error('SSE连接错误:', error);
+                    // 3秒后重新连接
+                    setTimeout(() => {
+                        if (newEventSource.readyState === EventSource.CLOSED) {
+                            initializeSSE();
+                        }
+                    }, 3000);
+                };
+
+                setEventSource(newEventSource);
+            }, [eventSource]);
+
+            // 当有新消息或流式消息时滚动
             useEffect(() => {
-                if (messages.length > prevMessageCount && autoScroll) {
+                if ((messages.length > prevMessageCount || streamingMessages.size > 0) && autoScroll) {
                     scrollToBottom();
                 }
                 setPrevMessageCount(messages.length);
-            }, [messages]);
+            }, [messages, streamingMessages, autoScroll, prevMessageCount]);
 
             useEffect(() => {
                 fetchMessages();
                 fetchTaskStatus();
+                initializeSSE();
+                
+                // 定期刷新（作为SSE的备份）
                 const interval = setInterval(() => {
                     fetchMessages();
                     fetchTaskStatus();
-                }, 2000);
-                return () => clearInterval(interval);
+                }, 5000);
+                
+                return () => {
+                    clearInterval(interval);
+                    if (eventSource) {
+                        eventSource.close();
+                    }
+                };
             }, []);
 
             const fetchMessages = async () => {
@@ -366,7 +544,7 @@
                     if (response.ok) {
                         setNewRole('');
                         setNewMessage('');
-                        fetchMessages();
+                        // 不需要立即刷新，SSE会处理新消息
                     }
                 } catch (error) {
                     console.error('发送消息失败:', error);
@@ -375,7 +553,6 @@
                 }
             };
 
-            // 新增：启动ChatDev任务
             const startTask = async () => {
                 if (!taskDescription.trim() || !projectName.trim()) return;
 
@@ -395,7 +572,7 @@
                     if (response.ok) {
                         setTaskDescription('');
                         setProjectName('');
-                        fetchTaskStatus();
+                        // SSE会处理状态更新
                     } else {
                         const errorData = await response.json();
                         alert(errorData.error || '启动任务失败');
@@ -408,11 +585,11 @@
                 }
             };
 
-            // 新增：清空消息
             const clearMessages = async () => {
                 try {
                     await fetch('/clear_messages', { method: 'POST' });
-                    fetchMessages();
+                    setMessages([]);
+                    setStreamingMessages(new Map());
                 } catch (error) {
                     console.error('清空消息失败:', error);
                 }
@@ -425,29 +602,32 @@
                 }
             };
 
-            const roleColors = {
-                'CEO': 'bg-purple-500',
-                'CTO': 'bg-blue-500',
-                'Programmer': 'bg-green-500',
-                'Code Reviewer': 'bg-orange-500',
-                'Tester': 'bg-red-500',
-                'Chief Human Resource Officer': 'bg-pink-500',
-                'Counselor': 'bg-indigo-500',
-                'Chief Creative Officer': 'bg-yellow-500',
-                'System': 'bg-gray-700',
-                'Default': 'bg-gray-500'
-            };
-
-            const getAvatarBg = (role) => {
-                return roleColors[role] || roleColors['Default'];
-            };
-
             // 示例任务
             const exampleTasks = [
                 { name: "贪吃蛇游戏", description: "创建一个经典的贪吃蛇游戏，包含计分系统和游戏结束检测" },
                 { name: "待办事项应用", description: "开发一个简单的待办事项管理应用，支持添加、删除和标记完成任务" },
                 { name: "计算器应用", description: "制作一个具有基本运算功能的计算器，支持加减乘除运算" },
                 { name: "天气查询工具", description: "开发一个天气查询应用，能够显示当前天气和未来几天的天气预报" }
+            ];
+
+            // 合并正式消息和流式消息用于显示
+            const allMessages = [
+                ...messages,
+                ...Array.from(streamingMessages.values()).sort((a, b) => a.timestamp - b.timestamp)
+            ];
+
+            const totalMessageCount = messages.length + streamingMessages.size;
+
+            // 快速角色选择列表（使用实际的角色名称）
+            const quickRoles = [
+                'Programmer',
+                'Code Reviewer',
+                'Tester',
+                'Chief Human Resource Officer',
+                'Counselor',
+                'Chief Creative Officer',
+                'Chief Product Officer',
+                'Prompt Engineer'
             ];
 
             return (
@@ -462,10 +642,16 @@
                                     </div>
                                     <div>
                                         <h1 className="text-xl font-bold text-gray-800">ChatDev Studio</h1>
-                                        <p className="text-sm text-gray-600">AI 协作开发平台</p>
+                                        <p className="text-sm text-gray-600">AI 协作开发平台 - 实时流式输出</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
+                                    {streamingMessages.size > 0 && (
+                                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                            <span className="text-sm font-medium">实时输出中</span>
+                                        </div>
+                                    )}
                                     {taskStatus.running && (
                                         <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg">
                                             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -603,8 +789,13 @@
                                                 <MessageSquare />
                                                 <h2 className="font-semibold text-gray-800">开发进程</h2>
                                                 <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                                                    {messages.length} 条消息
+                                                    {totalMessageCount} 条消息
                                                 </div>
+                                                {streamingMessages.size > 0 && (
+                                                    <div className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+                                                        {streamingMessages.size} 条实时
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <button
@@ -638,7 +829,7 @@
                                         className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide"
                                         onScroll={handleScroll}
                                     >
-                                        {messages.length === 0 ? (
+                                        {allMessages.length === 0 ? (
                                             <div className="flex items-center justify-center h-full text-gray-500">
                                                 <div className="text-center">
                                                     <MessageSquare className="mx-auto mb-2 w-8 h-8" />
@@ -646,17 +837,23 @@
                                                 </div>
                                             </div>
                                         ) : (
-                                            messages.map((message, index) => (
-                                                <div key={index} className="flex gap-3">
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-semibold text-sm ${getAvatarBg(message.role)} flex-shrink-0`}>
-                                                        {message.role === 'System' ? '🤖' : message.role.charAt(0).toUpperCase()}
-                                                    </div>
+                                            allMessages.map((message, index) => (
+                                                <div key={message.id || index} className="flex gap-3">
+                                                    <RoleAvatar role={message.role} />
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <span className="font-medium text-gray-800 text-sm">{message.role}</span>
-                                                            <span className="text-xs text-gray-500">刚刚</span>
+                                                            <span className="text-xs text-gray-500">
+                                                                {message.isComplete === false ? '输入中...' : '刚刚'}
+                                                            </span>
+                                                            {message.isComplete === false && (
+                                                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                                            )}
                                                         </div>
-                                                        <MarkdownMessage content={message.text} />
+                                                        <StreamingMessage 
+                                                            content={message.text || message.content} 
+                                                            isStreaming={message.isComplete === false}
+                                                        />
                                                     </div>
                                                 </div>
                                             ))
@@ -730,14 +927,14 @@
                                     </div>
                                     
                                     <div className="grid grid-cols-1 gap-2">
-                                        {Object.keys(roleColors).filter(role => role !== 'Default' && role !== 'System').map((role) => (
+                                        {quickRoles.map((role) => (
                                             <button
                                                 key={role}
                                                 onClick={() => setNewRole(role)}
-                                                className="text-left p-2 text-xs bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                                className="text-left p-3 text-xs bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
                                             >
-                                                <div className="flex items-center gap-2">
-                                                    <div className={`w-3 h-3 rounded-full ${roleColors[role]}`} />
+                                                <div className="flex items-center gap-3">
+                                                    <RoleAvatar role={role} />
                                                     <span className="text-gray-700 font-medium">{role}</span>
                                                 </div>
                                             </button>
