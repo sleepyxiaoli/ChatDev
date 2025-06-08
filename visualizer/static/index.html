@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>ChatDev</title>
+    <title>ChatDev - 任务启动界面</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@3.0.7/marked.min.js"></script>
@@ -15,72 +15,499 @@
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
-    <script src="static/js/main.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-okaidia.min.css">
-    <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/monokai-sublime.min.css">
     <style>
-        .custom-text-block {
-            background-color: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: center;
-            font-size: 16px;
-            color: #333;
+        :root {
+            --primary-color: #4e54c8;
+            --secondary-color: #8f94fb;
+            --dark-color: #1a1c2c;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
         }
-
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--light-color);
+        }
+        
+        .container-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(26, 28, 44, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .title-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title-image {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: rgba(40, 44, 64, 0.8);
+            border-radius: 15px;
+            border: none;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 15px 20px;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #e0e0ff;
+        }
+        
+        .form-control, .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 10px;
+            padding: 12px 15px;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, #3d43b8, #7c82f0);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
         .visualizer-container {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 30px 0;
         }
-
+        
         .visualizer-box {
-            width: 30%;
+            flex: 0 0 48%;
             text-align: center;
+            padding: 20px;
+            background-color: rgba(40, 44, 64, 0.6);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
-
+        
+        .visualizer-box:hover {
+            background-color: rgba(40, 44, 64, 0.8);
+            transform: translateY(-5px);
+        }
+        
+        .visualizer-box button {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .visualizer-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
         .visualizer-info {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
+            color: #b0b0ff;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .status-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(40, 44, 64, 0.8);
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .status-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #e0e0ff;
+        }
+        
+        .progress {
+            height: 20px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            overflow: visible;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .status-log {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #a0f0a0;
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(40, 44, 64, 0.8);
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .result-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #e0e0ff;
+        }
+        
+        .result-content {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: white;
+            min-height: 100px;
+        }
+        
+        .example-tasks {
+            margin-top: 20px;
+        }
+        
+        .example-tasks h6 {
+            color: #e0e0ff;
+            margin-bottom: 10px;
+        }
+        
+        .example-task {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .example-task:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .example-task:last-child {
+            margin-bottom: 0;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
     </style>
-    <script>
-        hljs.initHighlightingOnLoad();
-    </script>
 </head>
 
 <body>
-    <div class="d-flex justify-content-center">
-        <img src="static/figures/title.png" alt="ChatDev Title" id="title-image" style="width: 100%; max-width: 300px;">
-    </div>
-    <div class="visualizer-container">
-        <div class="visualizer-box">
-            <br>
-            <a href="static/chain_visualizer.html">
-                <button>ChatChain Visualizer</button>
-            </a>
-            <p class="visualizer-info">Explore all the phases  and settings in ChatChain.</p>
+    <div class="container-wrapper">
+        <div class="logo-container">
+            <div class="logo">ChatDev</div>
         </div>
-        <div class="visualizer-box">
-            <br>
-            <a href="static/replay.html">
-                <button>Replay Visualizer</button>
-            </a>
-            <p class="visualizer-info">Replay the agents' dialog from other ChatDev-generated software.</p>
+        
+        <div class="title-container">
+            <img src="https://chatdev.toscl.com/static/figures/title.png" alt="ChatDev Title" class="title-image">
+            <h1>智能软件开发平台</h1>
+            <p class="lead">输入您的需求，AI团队将为您开发软件</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">启动新项目</div>
+            <div class="card-body">
+                <form id="project-form">
+                    <div class="form-group">
+                        <label for="project-name">项目名称</label>
+                        <input type="text" class="form-control" id="project-name" placeholder="例如：贪吃蛇游戏" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-task">任务描述</label>
+                        <textarea class="form-control" id="project-task" rows="4" placeholder="详细描述您需要开发的功能和需求..." required></textarea>
+                    </div>
+                    
+                    <div class="example-tasks">
+                        <h6>示例任务：</h6>
+                        <div class="example-task" onclick="loadExample(1)">开发一个贪吃蛇游戏，包含分数系统和难度选择</div>
+                        <div class="example-task" onclick="loadExample(2)">创建一个简单的计算器应用，支持加减乘除运算</div>
+                        <div class="example-task" onclick="loadExample(3)">构建一个天气查询应用，显示当前城市温度和天气状况</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="start-project-btn">
+                        <span id="btn-text">启动项目</span>
+                        <span id="btn-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="visualizer-container">
+            <div class="visualizer-box">
+                <a href="static/chain_visualizer.html">
+                    <button>ChatChain 可视化</button>
+                </a>
+                <p class="visualizer-info">探索 ChatChain 中的各个阶段和设置</p>
+            </div>
+            <div class="visualizer-box">
+                <a href="static/replay.html">
+                    <button>回放可视化</button>
+                </a>
+                <p class="visualizer-info">回放 ChatDev 生成的软件中的代理对话</p>
+            </div>
+        </div>
+        
+        <div class="status-container" id="status-container">
+            <div class="status-header">项目进度</div>
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="status-log" id="status-log">
+                > 等待项目启动...
+            </div>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <div class="result-header">项目结果</div>
+            <div class="result-content" id="result-content">
+                <!-- 结果将在这里显示 -->
+            </div>
         </div>
     </div>
 
-    <!-- Inserted text block -->
-    <div class="custom-text-block">
-        Log Visualizer <br> Visualize the log in real-time when generating software, in agent dialog-style. Execute "python3 run.py" to start.
-    </div>
-
-    <div class="container d-flex flex-column" id="chat-box"></div>
-    <script src="static/js/main.js"></script>
+    <script>
+        // 示例任务加载
+        function loadExample(num) {
+            const examples = [
+                {name: "贪吃蛇游戏", task: "开发一个贪吃蛇游戏，包含分数系统和难度选择"},
+                {name: "计算器应用", task: "创建一个简单的计算器应用，支持加减乘除运算"},
+                {name: "天气查询应用", task: "构建一个天气查询应用，显示当前城市温度和天气状况"}
+            ];
+            
+            if (num >= 1 && num <= examples.length) {
+                const example = examples[num-1];
+                document.getElementById('project-name').value = example.name;
+                document.getElementById('project-task').value = example.task;
+            }
+        }
+        
+        // 表单提交处理
+        document.getElementById('project-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const projectName = document.getElementById('project-name').value;
+            const projectTask = document.getElementById('project-task').value;
+            
+            if (!projectName || !projectTask) {
+                alert('请填写项目名称和任务描述');
+                return;
+            }
+            
+            // 显示状态容器
+            document.getElementById('status-container').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            
+            // 更新按钮状态
+            const btn = document.getElementById('start-project-btn');
+            btn.disabled = true;
+            document.getElementById('btn-text').textContent = '处理中...';
+            document.getElementById('btn-spinner').style.display = 'inline-block';
+            
+            // 模拟进度更新
+            simulateProgress();
+            
+            // 模拟后端处理
+            setTimeout(() => {
+                // 在实际应用中，这里应该发送AJAX请求到后端
+                /*
+                $.ajax({
+                    url: '/run_chatdev',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        name: projectName,
+                        task: projectTask,
+                        model: "GPT_4O"
+                    }),
+                    success: function(response) {
+                        // 处理成功响应
+                        showResult(response);
+                    },
+                    error: function(error) {
+                        // 处理错误
+                        showError(error);
+                    },
+                    complete: function() {
+                        // 重置按钮状态
+                        btn.disabled = false;
+                        document.getElementById('btn-text').textContent = '启动项目';
+                        document.getElementById('btn-spinner').style.display = 'none';
+                    }
+                });
+                */
+                
+                // 模拟成功响应
+                const simulatedResponse = {
+                    status: "success",
+                    message: `项目 ${projectName} 生成完成！`,
+                    output_path: `/WareHouse/${projectName}_DefaultOrganization_20250608120000`,
+                    generated_files: [
+                        "main.py",
+                        "game_logic.py",
+                        "ui_components.py",
+                        "assets/sprites.png",
+                        "README.md"
+                    ]
+                };
+                
+                showResult(simulatedResponse);
+                
+                // 重置按钮状态
+                btn.disabled = false;
+                document.getElementById('btn-text').textContent = '启动项目';
+                document.getElementById('btn-spinner').style.display = 'none';
+            }, 5000);
+        });
+        
+        // 模拟进度更新
+        function simulateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const statusLog = document.getElementById('status-log');
+            let progress = 0;
+            
+            statusLog.innerHTML = "> 开始初始化项目...\n";
+            
+            const stages = [
+                {percent: 10, message: "> 初始化项目配置...\n"},
+                {percent: 20, message: "> 组建开发团队：产品经理、开发工程师、测试工程师...\n"},
+                {percent: 35, message: "> 产品经理正在分析需求...\n"},
+                {percent: 50, message: "> 开发工程师开始编写代码...\n"},
+                {percent: 65, message: "> 测试工程师设计测试用例...\n"},
+                {percent: 80, message: "> 整合代码并进行测试...\n"},
+                {percent: 95, message: "> 生成最终软件包...\n"},
+                {percent: 100, message: "> 项目完成！\n"}
+            ];
+            
+            stages.forEach((stage, index) => {
+                setTimeout(() => {
+                    progressBar.style.width = stage.percent + "%";
+                    progressBar.setAttribute('aria-valuenow', stage.percent);
+                    statusLog.innerHTML += stage.message;
+                    statusLog.scrollTop = statusLog.scrollHeight;
+                }, 1000 * (index + 1));
+            });
+        }
+        
+        // 显示结果
+        function showResult(response) {
+            const resultContainer = document.getElementById('result-container');
+            const resultContent = document.getElementById('result-content');
+            
+            resultContainer.style.display = 'block';
+            
+            if (response.status === "success") {
+                resultContent.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>成功！</strong> ${response.message}
+                    </div>
+                    <p><strong>输出目录:</strong> ${response.output_path}</p>
+                    <p><strong>生成的文件:</strong></p>
+                    <ul>
+                        ${response.generated_files.map(file => `<li>${file}</li>`).join('')}
+                    </ul>
+                    <button class="btn btn-primary mt-3">查看项目</button>
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>错误！</strong> ${response.message}
+                    </div>
+                    <p>请检查您的输入并重试。</p>
+                `;
+            }
+        }
+        
+        // 显示错误
+        function showError(error) {
+            const resultContainer = document.getElementById('result-container');
+            const resultContent = document.getElementById('result-content');
+            
+            resultContainer.style.display = 'block';
+            resultContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>发生错误！</strong> ${error.responseJSON ? error.responseJSON.message : '服务器连接失败'}
+                </div>
+                <p>请稍后重试或检查后端服务状态。</p>
+            `;
+        }
+    </script>
 </body>
 
 </html>
