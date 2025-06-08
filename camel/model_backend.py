@@ -99,13 +99,13 @@ class OpenAIModel(ModelBackend):
             num_max_completion_tokens = num_max_token - num_prompt_tokens
             self.model_config_dict['max_tokens'] = num_max_completion_tokens
 
-            print("++++++++++++++++++++++++")
-            print(self.model_type.value)
-            print(num_prompt_tokens)
-            print(self.model_config_dict['max_tokens'])
-            print(args)
-            print(kwargs)
-            print("++++++++++++++++++++++++")
+            # print("++++++++++++++++++++++++")
+            # print(self.model_type.value)
+            # print(num_prompt_tokens)
+            # print(self.model_config_dict['max_tokens'])
+            # print(args)
+            # print(kwargs)
+            # print("++++++++++++++++++++++++")
 
             response = client.chat.completions.create(*args, **kwargs, model=self.model_type.value,
                                                       **self.model_config_dict)

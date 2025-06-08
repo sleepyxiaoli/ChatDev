@@ -1,0 +1,3 @@
+
+This file indicates that the project requires Flask version 2.0.1 to run properly. If you plan to incorporate additional libraries or dependencies in the future, you can easily add them to this file in the same format. For example, if you decide to use a database library like SQLAlchemy or any other packages, you would list them similarly:
+
