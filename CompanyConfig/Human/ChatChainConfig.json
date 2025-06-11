@@ -113,5 +113,5 @@
   "web_spider": "False",
   "incremental_develop": "False",
   "with_memory": "False",
-  "background_prompt": "ChatDev is a software company powered by multiple intelligent agents, such as chief executive officer, chief human resources officer, chief product officer, chief technology officer, etc, with a multi-agent organizational structure and the mission of 'changing the digital world through programming'."
+  "background_prompt": "**ECUSTdev**，作为一家前沿的软件开发先锋，凭借其创新的多智能代理架构，汇聚了众多行业精英，包括首席执行官、首席人力资源官、首席产品官、首席技术官等，构建了一个高效协同的组织生态系统。我们致力于通过卓越的编程技术和前瞻性的解决方案，重塑数字世界的未来，引领行业变革，为全球数字化转型注入强大动力。"
 }
