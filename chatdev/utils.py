@@ -38,7 +38,8 @@ def log_visualize(role, content=None):
                 value = content.meta_dict[key]
                 value = escape_string(value)
                 records_kv.append([key, value])
-            content = "**[SystemMessage**]\n\n" + convert_to_markdown_table(records_kv)
+            content = "**[SystemMessage**]\n\n" + \
+                convert_to_markdown_table(records_kv)
         else:
             role = str(role)
             content = str(content)
@@ -64,7 +65,8 @@ def log_arguments(func):
         params = sig.parameters
 
         all_args = {}
-        all_args.update({name: value for name, value in zip(params.keys(), args)})
+        all_args.update(
+            {name: value for name, value in zip(params.keys(), args)})
         all_args.update(kwargs)
 
         records_kv = []
@@ -73,12 +75,14 @@ def log_arguments(func):
                 continue
             value = escape_string(value)
             records_kv.append([name, value])
-        records = f"**[{func.__name__}]**\n\n" + convert_to_markdown_table(records_kv)
+        records = f"**[{func.__name__}]**\n\n" + \
+            convert_to_markdown_table(records_kv)
         log_visualize("System", records)
 
         return func(*args, **kwargs)
 
     return wrapper
+
 
 def escape_string(value):
     value = str(value)
